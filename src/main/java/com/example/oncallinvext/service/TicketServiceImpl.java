@@ -5,7 +5,6 @@ import com.example.oncallinvext.repositories.TicketRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
-import org.json.JSONString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,11 +78,9 @@ public class TicketServiceImpl implements TicketService {
         if(closedTicketDB == 0) return "The existing ticket was not closed";
         Ticket desirealizedTicket = null;
         String lastRedisTicket = redisService.getLatestRecord(ticket.getQueueName());
-        System.out.println("lastRedisTicket... " + lastRedisTicket);
         if(lastRedisTicket == null) return "The queue is empty. No more tickets to be assigned at this moment for " + ticket.getQueueName();
         try {
             JSONObject jsonObject =  new JSONObject(lastRedisTicket);
-            System.out.println("json ticket.......... " + jsonObject);
             desirealizedTicket = objectMapper.readValue(jsonObject.toString(), Ticket.class);
         } catch (JsonProcessingException e) {
             log.info("ERROR ====>>>> {}",e.getOriginalMessage());
@@ -91,7 +88,6 @@ public class TicketServiceImpl implements TicketService {
         }
         Ticket savedTicket = ticketRepository.save(desirealizedTicket);
         if(savedTicket == null) return "Ticket could not be saved";
-        System.out.println("saved ticket... " + savedTicket);
 
         redisService.dequeue(ticket.getQueueName());
         return "Tickets were processed with success! New tickets were pushed from Queue and dropped into Attendance todo list";
