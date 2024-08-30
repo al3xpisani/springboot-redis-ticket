@@ -76,7 +76,7 @@ public class TicketServiceImpl implements TicketService {
         if(ticket == null) return "Ticket does not exist";
         int closedTicketDB = ticketRepository.closeOpenedTicketById(id);
         if(closedTicketDB == 0) return "The existing ticket was not closed";
-        Ticket desirealizedTicket = null;
+        Ticket desirealizedTicket;
         String lastRedisTicket = redisService.getLatestRecord(ticket.getQueueName());
         if(lastRedisTicket == null) return "The queue is empty. No more tickets to be assigned at this moment for " + ticket.getQueueName();
         try {
