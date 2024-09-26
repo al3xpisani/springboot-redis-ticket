@@ -5,8 +5,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import java.util.Date;
-
 @Entity
 public class Ticket {
     @Id
@@ -59,13 +57,12 @@ public class Ticket {
 
     @Override
     public String toString() {
-        return "Ticketing{" +
-                "id=" + id +
-                ", queueName='" + queueName + '\'' +
-                ", createdAt='" + createdAt + '\'' +
-                ", issueDescription='" + issueDescription + '\'' +
-                ", status='" + status + '\'' +
-                '}';
+        return "{" +
+                "\"queueName\":\"" + this.getQueueName() + "\"," +
+                "\"createdAt\":\"" + this.getCreatedAt() + "\"," +
+                "\"issueDescription\":\"" + this.getIssueDescription() + "\"," +
+                "\"status\":\"" + this.getStatus() + "\"" +
+                "}";
     }
     @Override
     public boolean equals(Object o) {

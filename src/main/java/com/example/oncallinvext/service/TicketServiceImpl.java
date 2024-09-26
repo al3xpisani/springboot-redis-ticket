@@ -2,6 +2,7 @@ package com.example.oncallinvext.service;
 
 import com.example.oncallinvext.domain.Ticket;
 import com.example.oncallinvext.repositories.TicketRepository;
+import com.example.oncallinvext.utils.TimeStamp;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
@@ -10,11 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 @Service
 public class TicketServiceImpl implements TicketService {
@@ -33,30 +30,13 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public String processRedisTicket(Ticket ticket) {
         List<Ticket> tickets = ticketRepository.findCreatedByQueueName(ticket.getQueueName());
-        ticket.setCreatedAt(getTimeStampBRNow());
+        ticket.setCreatedAt(TimeStamp.getTimeStampBRNow());
         ticket.setStatus("CREATED");
-        String ticketDetails = formatTicketDetails(ticket);
-        String isTicketsPerAttendanceReached = checkMaximumTicketsPerAttendance(ticket, tickets, ticketDetails);
+        String isTicketsPerAttendanceReached = checkMaximumTicketsPerAttendance(ticket, tickets, ticket.toString());
         if (isTicketsPerAttendanceReached != null) return isTicketsPerAttendanceReached;
         ticketRepository.save(ticket);
-        log.info("Ticket Id {} dropped to the attendance start working : {}",ticket.getId(), ticketDetails);
-        return ticketDetails;
-    }
-
-    private static String formatTicketDetails(Ticket ticket) {
-        return "{" +
-                "\"queueName\":\"" + ticket.getQueueName() + "\"," +
-                "\"createdAt\":\"" + ticket.getCreatedAt() + "\"," +
-                "\"issueDescription\":\"" + ticket.getIssueDescription() + "\"," +
-                "\"status\":\"" + ticket.getStatus() + "\"" +
-                "}";
-    }
-
-    private static String getTimeStampBRNow() {
-        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-        format.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
-        Date now = new Date();
-        return format.format(now);
+        log.info("Ticket Id {} dropped to the attendance start working : {}",ticket.getId(), ticket);
+        return ticket.toString();
     }
 
     private String checkMaximumTicketsPerAttendance(Ticket ticket, List<Ticket> tickets, String ticketDetails) {
@@ -86,9 +66,7 @@ public class TicketServiceImpl implements TicketService {
             log.info("ERROR ====>>>> {}",e.getOriginalMessage());
             return null;
         }
-        Ticket savedTicket = ticketRepository.save(desirealizedTicket);
-        if(savedTicket == null) return "Ticket could not be saved";
-
+        ticketRepository.save(desirealizedTicket);
         redisService.dequeue(ticket.getQueueName());
         return "Tickets were processed with success! New tickets were pushed from Queue and dropped into Attendance todo list";
     }

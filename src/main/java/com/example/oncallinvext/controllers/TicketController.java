@@ -1,32 +1,27 @@
 package com.example.oncallinvext.controllers;
 
-import com.example.oncallinvext.domain.Category;
 import com.example.oncallinvext.domain.Ticket;
 import com.example.oncallinvext.repositories.TicketRepository;
 import com.example.oncallinvext.service.TicketService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/v1")
 public class TicketController {
-    private static final Logger log = LoggerFactory.getLogger(TicketController.class);
     private final TicketService ticketService;
     private final TicketRepository ticketRepository;
 
     public TicketController(TicketRepository ticketRepository, TicketService ticketService) {
-        this.ticketService = ticketService;
         this.ticketRepository = ticketRepository;
+        this.ticketService = ticketService;
     }
 
-    @RequestMapping("/tickets")
-    Iterable<Ticket> getById(){
+    @GetMapping("/tickets")
+    Iterable<Ticket> findAll(){
         return ticketRepository.findAll();
     }
 

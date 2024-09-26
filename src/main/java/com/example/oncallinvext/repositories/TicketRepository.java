@@ -15,6 +15,7 @@ public interface TicketRepository extends CrudRepository<Ticket, Long> {
     @Transactional
     @Query("SELECT t FROM Ticket t WHERE t.queueName = :queueName AND t.status = 'CREATED'")
     List<Ticket> findCreatedByQueueName(String queueName);
+    @Query("SELECT t FROM Ticket t WHERE t.id = :id AND t.status = 'CREATED'")
     Ticket findOpenedTicketById(Long id);
     @Modifying
     @Transactional
